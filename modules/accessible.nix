@@ -33,7 +33,7 @@
     accessible = {
       inherit (config) actions;
       workflows =
-        (utils.resolveWorkflows {
+        utils.resolveWorkflows {
           inherit config;
           stepsPipe = [
             (
@@ -66,7 +66,7 @@
               }
             )
           ];
-        });
+        };
     };
   };
 }

@@ -51,12 +51,14 @@
                 };
               };
             }
-            {
-              uses = workflows.workflow-1.jobs.a.steps."2".uses;
-            }
-            {
-              uses = workflows.workflow-1.jobs.a.steps.cache.uses;
-            }
+            [
+              {
+                uses = workflows.workflow-1.jobs.a.steps."2".uses;
+              }
+              {
+                uses = workflows.workflow-1.jobs.a.steps.cache.uses;
+              }
+            ]
           ]
           ++
           (workflows.workflow-1.jobs.a.steps [ "cache" ])
