@@ -28,12 +28,15 @@
             inherit config;
           }
         );
-      normalized = lib.mapAttrsRecursive'
-        (name: value: {
-          name = if name == "with_" then "with" else name;
-          inherit value;
-        })
-        default;
+      normalized = lib.pipe default [
+        (
+          lib.mapAttrsRecursive'
+            (name: value: {
+              name = if name == "with_" then "with" else name;
+              inherit value;
+            })
+        )
+      ];
     };
   };
 }

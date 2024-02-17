@@ -60,6 +60,8 @@ rec
 
     uses = str;
 
+    alias = str;
+
     with_ = lib.mkOption {
       type = lib.types.attrsOf types.null_OrNullOrStr;
       default = { };
@@ -77,7 +79,7 @@ rec
     };
 
     step = {
-      inherit id name uses with_;
+      inherit id name uses with_ alias;
     };
 
     job = {

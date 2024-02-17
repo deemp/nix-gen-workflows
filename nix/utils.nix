@@ -20,6 +20,8 @@ rec
 
   removeNulls = lib.filterAttrsRecursive (_: value: value != null);
 
+  removeAliases = lib.filterAttrsRecursive (name: _: name != "alias");
+
   convertNull_s =
     lib.mapAttrs
       (_: value:
@@ -31,8 +33,6 @@ rec
         then convertNull_s value
         else value
       );
-
-  # TODO imap + functor steps
 
   resolveWorkflows = { config, stepsPipe ? [ ] }:
     lib.pipe config.workflows [
@@ -100,6 +100,7 @@ rec
                 (builtins.filter (x: x != { }))
                 (map convertUses)
                 (map removeNulls)
+                (map removeAliases)
                 (map (x: if (x.with_ or { }) == { } then builtins.removeAttrs x [ "with_" ] else x))
               ];
             }

@@ -33,13 +33,21 @@
               lib.foldl'
                 (res: x: {
                   idx = res.idx + 1;
-                  acc = res.acc // {
-                    ${
-                    if x?id && x.id != null then x.id
-                    else if x?name && x.name != null then x.name
-                    else builtins.toString res.idx
-                    } = x;
-                  };
+                  acc =
+                    res.acc
+                    //
+                    {
+                      ${builtins.toString res.idx} = x;
+                    }
+                    //
+                    {
+                      ${
+                      if x?id && x.id != null then x.id
+                      else if x?alias && x.alias != null then x.alias
+                      else if x?name && x.name != null then x.name
+                      else builtins.toString res.idx
+                      } = x;
+                    };
                 })
                 { idx = 1; acc = { }; }
             )
