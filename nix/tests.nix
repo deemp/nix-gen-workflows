@@ -1,7 +1,7 @@
 { example }:
 {
   testPass = {
-    expr = example.config.clean;
+    expr = example.config.clean.normalized;
     expected = {
       workflow-1 = {
         jobs = {
@@ -11,7 +11,7 @@
               {
                 id = "1";
                 uses = "actions/checkout@v4";
-                with_ = {
+                "with" = {
                   filter = "filter-1";
                   repository = "abra";
                 };
@@ -27,7 +27,7 @@
               {
                 name = "hello";
                 uses = "actions/checkout@v4";
-                with_ = {
+                "with" = {
                   repository = "abra";
                 };
               }

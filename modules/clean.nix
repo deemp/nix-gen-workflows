@@ -6,16 +6,34 @@
 {
   options = {
     clean = lib.mkOption {
-      type = lib.types.attrsOf lib.types.anything;
-      default = { };
+      type = lib.types.submodule {
+        options = rec {
+          default = lib.mkOption {
+            type = lib.types.attrsOf lib.types.anything;
+            default = { };
+          };
+          # correct identifiers:
+          # with_ -> with
+          normalized = default;
+        };
+      };
     };
   };
 
   config = {
-    clean = utils.cleanWorkflows (
-      utils.resolveWorkflows {
-        inherit config;
-      }
-    );
+    clean = rec {
+      default =
+        utils.cleanWorkflows (
+          utils.resolveWorkflows {
+            inherit config;
+          }
+        );
+      normalized = lib.mapAttrsRecursive'
+        (name: value: {
+          name = if name == "with_" then "with" else name;
+          inherit value;
+        })
+        default;
+    };
   };
 }

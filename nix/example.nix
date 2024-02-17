@@ -17,7 +17,7 @@
 
   workflows = {
     workflow-1 = {
-      path = "action.yaml";
+      path = ".github/workflows/action.yaml";
       actions = { };
       jobs = {
         a = {
@@ -59,7 +59,7 @@
     };
 
     workflow-2 = {
-      path = "action-2.yaml";
+      path = ".github/workflows/action-2.yaml";
 
       jobs = {
         a = {

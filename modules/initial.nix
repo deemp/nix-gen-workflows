@@ -17,7 +17,9 @@
               type = lib.types.oneOf [
                 common.types.null_OrNullOrStr
                 (
-                  (lib.types.attrsOf common.options.action) // {
+                  (lib.types.attrsOf common.options.action)
+                  //
+                  {
                     check = x:
                       builtins.isAttrs x
                       && builtins.length (builtins.attrValues x) == 1;

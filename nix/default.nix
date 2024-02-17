@@ -13,6 +13,7 @@ rec {
           ../modules/initial.nix
           ../modules/accessible.nix
           ../modules/clean.nix
+          ../modules/write.nix
         ];
         specialArgs =
           {
@@ -22,7 +23,7 @@ rec {
               inherit (lib.values) null_;
             };
 
-            inherit utils common;
+            inherit utils common pkgs lib;
           }
           //
           extraSpecialArgs;
