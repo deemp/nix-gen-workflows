@@ -34,6 +34,12 @@
               {
                 uses = "actions/cache";
               }
+              {
+                uses = "actions/cache";
+              }
+              {
+                uses = "actions/cache";
+              }
             ];
           };
         };

@@ -12,9 +12,16 @@
           actions = common.options.actions;
           workflows = common.mkWorkflowsOption {
             type =
-              lib.types.attrsOf (lib.types.submodule {
-                options = common.options.step;
-              });
+              let
+                step = lib.types.submodule {
+                  options = common.options.step;
+                };
+              in
+              lib.types.attrsOf (
+                lib.types.either
+                  (lib.types.functionTo (lib.types.functionTo (lib.types.listOf step)))
+                  step
+              );
             default = { };
           };
         };
@@ -26,7 +33,7 @@
     accessible = {
       inherit (config) actions;
       workflows =
-        utils.resolveWorkflows {
+        (utils.resolveWorkflows {
           inherit config;
           stepsPipe = [
             (
@@ -51,9 +58,15 @@
                 })
                 { idx = 1; acc = { }; }
             )
-            (x: x.acc)
+            (x:
+              x.acc
+              //
+              {
+                __functor = self: map (x: self.${builtins.toString x});
+              }
+            )
           ];
-        };
+        });
     };
   };
 }
