@@ -14,6 +14,16 @@ rec {
           ../modules/accessible.nix
           ../modules/clean.nix
           ../modules/write.nix
+          ../modules/docs.nix
+          {
+            config.modules-docs.roots = [
+              {
+                url = "https://github.com/deemp/nix-gen-workflows";
+                path = toString ../.;
+                branch = "main";
+              }
+            ];
+          }
         ];
         specialArgs =
           {
