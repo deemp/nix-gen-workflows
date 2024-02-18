@@ -1,9 +1,12 @@
 { lib }:
 let
-  nonEmptyListOf = elemType: lib.types.nonEmptyListOf elemType // {
-    # TODO remove after switching to newer nixpkgs
-    substSubModules = m: nonEmptyListOf (elemType.substSubModules m);
-  };
+  nonEmptyListOf = elemType:
+    let list = lib.types.addCheck (lib.types.listOf elemType) (l: l != [ ]); in
+    list // {
+      description = "arbitrarily nested, non-empty when flattened ${lib.types.optionDescriptionPhrase (class: class == "noun") list}";
+      # TODO remove after switching to newer nixpkgs
+      substSubModules = m: nonEmptyListOf (elemType.substSubModules m);
+    };
 
   null_ = { type = "null_"; };
 
