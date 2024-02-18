@@ -3,6 +3,11 @@ rec
 {
   qq = x: "\${{ ${builtins.toString x} }}";
 
+  stepsIf =
+    cond: steps:
+    assert builtins.isList steps;
+    if cond then builtins.flatten steps else [ ];
+
   convertUses = x:
     x
     //

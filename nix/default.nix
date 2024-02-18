@@ -29,7 +29,7 @@ rec {
           {
             configuration = configuration {
               inherit (module.config.accessible) workflows actions;
-              inherit (utils) qq;
+              inherit (utils) qq stepsIf;
               inherit (lib.values) null_;
             };
 

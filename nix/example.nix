@@ -2,6 +2,7 @@
 , actions
 , qq
 , null_
+, stepsIf
 , ...
 }:
 {
@@ -36,6 +37,14 @@
               uses = "actions/cache";
               alias = "cache";
             }
+            (
+              stepsIf false [
+                {
+                  uses = "actions/cache";
+                  alias = "cache";
+                }
+              ]
+            )
           ];
         };
 
