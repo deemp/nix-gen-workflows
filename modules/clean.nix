@@ -7,15 +7,17 @@
   options = {
     clean = lib.mkOption {
       type = lib.types.submodule {
-        options = rec {
-          default = lib.mkOption {
-            type = lib.types.attrsOf lib.types.anything;
-            default = { };
+        options =
+          let
+            option = lib.mkOption {
+              type = lib.types.attrsOf lib.types.anything;
+              default = { };
+            };
+          in
+          {
+            default = option;
+            normalized = option;
           };
-          # correct identifiers:
-          # with_ -> with
-          normalized = default;
-        };
       };
     };
   };
@@ -30,6 +32,7 @@
         );
       normalized = lib.pipe default [
         (
+          # rename: "with_" -> "with"
           lib.mapAttrsRecursive'
             (name: value: {
               name = if name == "with_" then "with" else name;
