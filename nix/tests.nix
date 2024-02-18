@@ -1,4 +1,8 @@
-{ example }:
+{ pkgs ? import <nixpkgs> { }
+}:
+let
+  inherit (import ./. { inherit pkgs; }) example;
+in
 {
   testPass = {
     expr = example.config.clean.normalized;

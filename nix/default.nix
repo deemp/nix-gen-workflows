@@ -1,4 +1,6 @@
-{ pkgs }:
+{ pkgs ? import <nixpkgs> { }
+,
+}:
 rec {
   lib = import ./lib.nix { inherit (pkgs) lib; };
 
