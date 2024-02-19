@@ -60,22 +60,4 @@ rec
       inherit name;
     };
   };
-
-  mkWorkflowsOption = steps: lib.mkOption {
-    type = lib.types.attrsOf (lib.types.submodule {
-      options = {
-        inherit (options) path actions;
-        jobs = lib.mkOption {
-          type = lib.types.attrsOf (lib.types.submodule {
-            options = {
-              inherit (options) name;
-              steps = lib.mkOption steps;
-            };
-          });
-          default = { };
-        };
-      };
-    });
-    default = { };
-  };
 }

@@ -10,18 +10,34 @@
       type = lib.types.submodule {
         options = {
           actions = common.options.actions;
-          workflows = common.mkWorkflowsOption {
-            type =
-              let
-                step = lib.types.submodule {
-                  options = common.options.step;
+          workflows = lib.mkOption {
+            type = lib.types.attrsOf (lib.types.submodule {
+              options = {
+                inherit (common.options) path actions;
+                jobs = lib.mkOption {
+                  type = lib.types.attrsOf (lib.types.submodule {
+                    options = {
+                      inherit (common.options) name;
+                      steps = lib.mkOption {
+                        type =
+                          let
+                            step = lib.types.submodule {
+                              options = common.options.step;
+                            };
+                          in
+                          lib.types.attrsOf (
+                            lib.types.either
+                              (lib.types.functionTo (lib.types.functionTo (lib.types.listOf step)))
+                              step
+                          );
+                        default = { };
+                      };
+                    };
+                  });
+                  default = { };
                 };
-              in
-              lib.types.attrsOf (
-                lib.types.either
-                  (lib.types.functionTo (lib.types.functionTo (lib.types.listOf step)))
-                  step
-              );
+              };
+            });
             default = { };
           };
         };

@@ -8,31 +8,47 @@
   options = {
     inherit (common.options) actions;
 
-    workflows = common.mkWorkflowsOption {
-      type =
-        lib.types.nonEmptyListOf (lib.types.submodule {
-          options =
-            common.options.step
-            //
-            {
-              uses = lib.mkOption {
-                type = lib.types.oneOf [
-                  common.types.null_OrNullOrStr
-                  (
-                    (lib.types.attrsOf common.options.action)
-                    //
-                    {
-                      check = x:
-                        builtins.isAttrs x
-                        && builtins.length (builtins.attrValues x) == 1;
-                    }
-                  )
-                ];
-                default = null;
+    workflows = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.submodule {
+        options = {
+          inherit (common.options) path actions;
+          jobs = lib.mkOption {
+            type = lib.types.attrsOf (lib.types.submodule {
+              options = {
+                inherit (common.options) name;
+                steps = lib.mkOption {
+                  type =
+                    lib.types.nonEmptyListOf (lib.types.submodule {
+                      options =
+                        common.options.step
+                        //
+                        {
+                          uses = lib.mkOption {
+                            type = lib.types.oneOf [
+                              common.types.null_OrNullOrStr
+                              (
+                                (lib.types.attrsOf common.options.action)
+                                //
+                                {
+                                  check = x:
+                                    builtins.isAttrs x
+                                    && builtins.length (builtins.attrValues x) == 1;
+                                }
+                              )
+                            ];
+                            default = null;
+                          };
+                        };
+                    });
+                  default = [ ];
+                };
               };
-            };
-        });
-      default = [ ];
+            });
+            default = { };
+          };
+        };
+      });
+      default = { };
     };
   };
 
