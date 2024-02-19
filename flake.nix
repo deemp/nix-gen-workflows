@@ -21,17 +21,19 @@
             in
             pkgs.stdenv.mkDerivation {
               name = "nix-unit-tests";
-              nativeBuildInputs = [ pkgs.nix ];
+              phases = [ "unpackPhase" "buildPhase" ];
               src = ./.;
               buildPhase = ''
-                export NIX_PATH=nixpkgs=${pkgs.path}
                 export HOME=$(realpath .)
-                cd nix
                 ${lib.getExe pkgs.nix-unit} \
                   --eval-store $(realpath .) \
-                  --arg inputs 'builtins.fromJSON (builtins.readFile ${inputsFile})' \
-                  tests.nix
-                touch $out  
+                  --flake \
+                  --option extra-experimental-features flakes \
+                  --override-input nixpkgs ${inputs.nixpkgs.outPath} \
+                  --override-input flake-utils ${inputs.flake-utils.outPath} \
+                  --override-input flake-utils/systems ${inputs.flake-utils.inputs.systems.outPath} \
+                  .#tests.${system}
+                touch $out
               '';
             };
         }
