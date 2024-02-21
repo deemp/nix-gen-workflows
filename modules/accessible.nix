@@ -9,35 +9,57 @@
     accessible = lib.mkOption {
       type = lib.types.submodule {
         options = {
-          actions = common.options.actions;
+          inherit (common.options) actions;
           workflows = lib.mkOption {
-            type = lib.types.attrsOf (lib.types.submodule {
-              options = {
-                inherit (common.options) path actions;
-                jobs = lib.mkOption {
-                  type = lib.types.attrsOf (lib.types.submodule {
-                    options = {
-                      inherit (common.options) name;
-                      steps = lib.mkOption {
-                        type =
-                          let
-                            step = lib.types.submodule {
-                              options = common.options.step;
+            type = lib.types.submodule {
+              options =
+                lib.mapAttrs
+                  (_: value:
+                    lib.mkOption {
+                      type =
+                        lib.types.submodule {
+                          options = {
+                            inherit (common.options) path actions;
+                            jobs = lib.mkOption {
+                              type = lib.types.submodule {
+                                options =
+                                  lib.mapAttrs
+                                    (_: value:
+                                      lib.mkOption {
+                                        type =
+                                          lib.types.submodule {
+                                            options = {
+                                              inherit (common.options) name;
+                                              steps = lib.mkOption {
+                                                type =
+                                                  let
+                                                    step = lib.types.submodule {
+                                                      options = common.options.step;
+                                                    };
+                                                  in
+                                                  lib.types.attrsOf (
+                                                    lib.types.either
+                                                      (lib.types.functionTo (lib.types.functionTo (lib.types.listOf step)))
+                                                      step
+                                                  );
+                                                default = { };
+                                              };
+                                            };
+                                          };
+                                        default = { };
+                                      }
+                                    )
+                                    value.jobs;
+                              };
+                              default = { };
                             };
-                          in
-                          lib.types.attrsOf (
-                            lib.types.either
-                              (lib.types.functionTo (lib.types.functionTo (lib.types.listOf step)))
-                              step
-                          );
-                        default = { };
-                      };
-                    };
-                  });
-                  default = { };
-                };
-              };
-            });
+                          };
+                        };
+                      default = { };
+                    }
+                  )
+                  config.workflows;
+            };
             default = { };
           };
         };
