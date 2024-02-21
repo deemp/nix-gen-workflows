@@ -14,6 +14,10 @@
         default
         //
         {
+          packages.nix-unit = pkgs.writeShellApplication {
+            name = "nix-unit-tests";
+            text = ''${lib.getExe pkgs.nix-unit} --flake .#tests.${system}'';
+          };
           checks.nix-unit =
             let
               inputs' = lib.mapAttrs (name: input: "${input.outPath}") inputs;
