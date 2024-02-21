@@ -28,9 +28,9 @@
               phases = [ "unpackPhase" "buildPhase" ];
               src = ./.;
               buildPhase = ''
-                export HOME=$(realpath .)
+                export HOME="$(realpath .)"
                 ${lib.getExe pkgs.nix-unit} \
-                  --eval-store $(realpath .) \
+                  --eval-store "$HOME" \
                   --flake \
                   --option extra-experimental-features flakes \
                   --override-input nixpkgs ${inputs.nixpkgs.outPath} \
