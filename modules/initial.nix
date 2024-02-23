@@ -12,6 +12,10 @@
       type = lib.types.attrsOf (lib.types.submodule {
         options = {
           inherit (common.options) path actions;
+          accessors = lib.mkOption {
+            type = lib.types.attrsNestedOf lib.types.attrsEmpty;
+            default = { };
+          };
           jobs = lib.mkOption {
             type = lib.types.attrsOf (lib.types.submodule {
               options = {
@@ -27,13 +31,9 @@
                             type = lib.types.oneOf [
                               common.types.null_OrNullOrStr
                               (
-                                (lib.types.attrsOf common.options.action)
-                                //
-                                {
-                                  check = x:
-                                    builtins.isAttrs x
-                                    && builtins.length (builtins.attrValues x) == 1;
-                                }
+                                lib.types.addCheck
+                                  (lib.types.attrsOf common.options.action)
+                                  (x: builtins.length (builtins.attrNames x) == 1)
                               )
                             ];
                             default = null;

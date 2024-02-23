@@ -14,6 +14,7 @@
                 "with" = {
                   filter = "filter-1";
                   repository = "abra";
+                  cadabra = "matrix.cadabra";
                 };
               }
               {

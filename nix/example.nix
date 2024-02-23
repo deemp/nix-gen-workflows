@@ -17,9 +17,12 @@
   };
 
   workflows = {
-    workflow-1 = {
+    workflow-1 = with workflows.workflow-1.accessors; {
       path = ".github/workflows/action.yaml";
       actions = { };
+      accessors = {
+        matrix.cadabra = { };
+      };
       jobs = {
         a = {
           name = "Hello";
@@ -29,7 +32,8 @@
               uses.checkout = {
                 with_ = {
                   filter = "filter-1";
-                  a = null_;
+                  abra = null_;
+                  cadabra = matrix.cadabra;
                 };
               };
             }

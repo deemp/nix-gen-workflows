@@ -14,17 +14,54 @@
             type = lib.types.submodule {
               options =
                 lib.mapAttrs
-                  (_: value:
+                  (_: workflow:
                     lib.mkOption {
                       type =
                         lib.types.submodule {
                           options = {
+                            accessors = lib.mkOption {
+                              type =
+                                let
+                                  mkAccessorOptions =
+                                    lib.mapAttrs
+                                      (name: value:
+                                        lib.mkOption
+                                          (
+                                            if lib.types.attrsEmpty.check value
+                                            then
+                                              {
+                                                type = lib.types.coercedTo lib.types.attrs builtins.toString lib.types.str;
+                                                default = "";
+                                              }
+                                            else
+                                              {
+                                                type = lib.types.submodule {
+                                                  options =
+                                                    (mkAccessorOptions value)
+                                                    //
+                                                    {
+                                                      __toString = lib.mkOption {
+                                                        type = lib.types.functionTo lib.types.str;
+                                                        default = _: "";
+                                                      };
+                                                    };
+                                                };
+                                                default = { };
+                                              }
+                                          )
+                                      );
+                                in
+                                lib.types.submodule {
+                                  options = mkAccessorOptions (workflow.accessors or { });
+                                };
+                              default = { };
+                            };
                             inherit (common.options) path actions;
                             jobs = lib.mkOption {
                               type = lib.types.submodule {
                                 options =
                                   lib.mapAttrs
-                                    (_: value:
+                                    (_: _:
                                       lib.mkOption {
                                         type =
                                           lib.types.submodule {
@@ -49,7 +86,7 @@
                                         default = { };
                                       }
                                     )
-                                    value.jobs;
+                                    workflow.jobs;
                               };
                               default = { };
                             };
@@ -73,6 +110,7 @@
       workflows =
         utils.resolveWorkflows {
           inherit config;
+          doMakeAccessors = true;
           stepsPipe = [
             (
               lib.foldl'

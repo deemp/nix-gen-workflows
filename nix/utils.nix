@@ -8,6 +8,26 @@ rec
     assert builtins.isList steps;
     if cond then builtins.flatten steps else [ ];
 
+  # make accessors from an attrset so that a.b.c represents a string "a.b.c"
+  mkAccessors = mkAccessors_ "";
+
+  # make accessors with an initial path
+  mkAccessors_ = path: attrs@{ ... }:
+    assert lib.isString path;
+    (lib.mapAttrs
+      (name: val:
+        let path_ = "${path}${if path == "" then "" else "."}${name}"; in
+        if lib.isAttrs val
+        then mkAccessors_ path_ val
+        else { __toString = self: "${path_}"; }
+      )
+      attrs
+    )
+    //
+    lib.optionalAttrs
+      (path != "")
+      { __toString = self: "${path}"; }
+  ;
   convertUses = x:
     x
     //
@@ -39,7 +59,7 @@ rec
         else value
       );
 
-  resolveWorkflows = { config, stepsPipe ? [ ] }:
+  resolveWorkflows = { config, stepsPipe ? [ ], doMakeAccessors ? false }:
     lib.pipe config.workflows [
       (lib.mapAttrs
         (_: workflow:
@@ -47,6 +67,10 @@ rec
           //
           (
             let actions = lib.recursiveUpdate config.actions (workflow.actions or { }); in
+            (lib.optionalAttrs doMakeAccessors {
+              accessors = mkAccessors (workflow.accessors or { });
+            })
+            //
             {
               inherit actions;
               jobs =
@@ -116,7 +140,7 @@ rec
   cleanWorkflows =
     lib.mapAttrs (_: workflow:
       lib.pipe workflow [
-        (x: builtins.removeAttrs x [ "actions" "path" ])
+        (x: builtins.removeAttrs x [ "actions" "path" "accessors" ])
         cleanJobs
         convertNull_s
         removeNulls
