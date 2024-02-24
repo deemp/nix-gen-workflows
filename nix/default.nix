@@ -10,7 +10,7 @@ rec {
     let
       module = pkgs.lib.evalModules {
         modules = [
-          ../modules/initial.nix
+          ../modules/configuration.nix
           ../modules/accessible.nix
           ../modules/clean.nix
           ../modules/write.nix
