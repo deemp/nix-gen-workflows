@@ -10,7 +10,6 @@ rec
 
   # make accessors with an initial path
   mkAccessors_ = path: attrs@{ ... }:
-    assert lib.isString path;
     (lib.mapAttrs
       (name: val:
         let path_ = "${path}${if path == "" then "" else "."}${name}"; in
