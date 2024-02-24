@@ -3,10 +3,7 @@ rec
 {
   qq = x: "\${{ ${builtins.toString x} }}";
 
-  stepsIf =
-    cond: steps:
-    assert builtins.isList steps;
-    if cond then builtins.flatten steps else [ ];
+  stepsIf = cond: steps: if cond then lib.flatten steps else [ ];
 
   # make accessors from an attrset so that a.b.c represents a string "a.b.c"
   mkAccessors = mkAccessors_ "";
