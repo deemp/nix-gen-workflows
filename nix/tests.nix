@@ -1,6 +1,6 @@
 { example }:
 {
-  testPass = {
+  normalized.testPass = {
     expr = example.config.clean.normalized;
     expected = {
       workflow-1 = {
@@ -19,6 +19,9 @@
               }
               {
                 uses = "actions/cache";
+              }
+              {
+                uses = "something";
               }
             ];
           };

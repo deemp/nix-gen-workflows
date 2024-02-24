@@ -1,11 +1,22 @@
+{ lib
+, ...
+}:
 { workflows
 , actions
 , qq
 , null_
 , stepsIf
+, config
 , ...
 }:
 {
+  parameters = {
+    foo = lib.mkOption {
+      type = lib.types.int;
+      default = 3;
+    };
+  };
+
   actions = {
     checkout = {
       name = "actions/checkout@v4";
@@ -42,10 +53,18 @@
               alias = "cache";
             }
             (
-              stepsIf false [
+              stepsIf (config.foo == 3) [
                 {
-                  uses = "actions/cache";
-                  alias = "cache";
+                  uses = "something";
+                  alias = "something";
+                }
+              ]
+            )
+            (
+              stepsIf (config.foo == 4) [
+                {
+                  uses = "something";
+                  alias = "something";
                 }
               ]
             )

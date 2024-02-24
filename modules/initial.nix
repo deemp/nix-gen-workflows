@@ -6,6 +6,11 @@
 }@args:
 {
   options = {
+    parameters = lib.mkOption {
+      type = lib.types.attrsOf lib.types.anything;
+      default = configuration.parameters;
+    };
+
     inherit (common.options) actions;
 
     workflows = lib.mkOption {

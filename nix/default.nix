@@ -15,6 +15,7 @@ rec {
           ../modules/clean.nix
           ../modules/write.nix
           ../modules/docs.nix
+          ../modules/parameters.nix
           {
             config.modules-docs.roots = [
               {
@@ -31,6 +32,7 @@ rec {
               inherit (module.config.accessible) workflows actions;
               inherit (utils) qq stepsIf;
               inherit (lib.values) null_;
+              config = module.config.user.parameters;
             };
 
             inherit utils common pkgs lib;
@@ -43,7 +45,7 @@ rec {
       inherit (module) config options;
     };
 
-  example = eval { configuration = import ./example.nix; };
+  example = eval { configuration = import ./example.nix { inherit (pkgs) lib; }; };
 
   tests = import ./tests.nix { inherit example; };
 }
