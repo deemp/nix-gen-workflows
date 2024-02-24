@@ -20,9 +20,10 @@ rec
       attrs
     )
     //
-    lib.optionalAttrs
+    (lib.optionalAttrs
       (path != "")
       { __toString = self: "${path}"; }
+    )
   ;
   convertUses = x:
     x

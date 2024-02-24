@@ -25,7 +25,8 @@
               cp ${generate} "${path}"
               chmod +w "${path}"
             ''))
-        ]; in
+        ];
+      in
       workflowWriters
       //
       {
