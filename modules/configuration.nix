@@ -2,13 +2,22 @@
 , common
 , config
 , configuration
+, options
 , ...
 }@args:
 {
   options = {
-    parameters = lib.mkOption {
-      type = lib.types.attrsOf lib.types.anything;
-      default = configuration.parameters;
+    valuesSchema = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.addCheck lib.types.anything (lib.isType "option"));
+      default = configuration.valuesSchema or { };
+    };
+
+    values = lib.mkOption {
+      type = lib.types.submodule { options = options.valuesSchema.default; };
+      default =
+        lib.recursiveUpdate
+          (lib.mapAttrs (name: value: value.default or null) (options.valuesSchema.default or { }))
+          (configuration.values or { });
     };
 
     inherit (common.options) actions;
@@ -58,6 +67,7 @@
   };
 
   config = {
+
     inherit (configuration) actions;
     workflows = lib.mapAttrs
       (_: workflow:

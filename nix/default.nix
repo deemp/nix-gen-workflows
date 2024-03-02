@@ -15,7 +15,6 @@ rec {
           ../modules/clean.nix
           ../modules/write.nix
           ../modules/docs.nix
-          ../modules/parameters.nix
           {
             config.modules-docs.roots = [
               {
@@ -28,12 +27,17 @@ rec {
         ];
         specialArgs =
           {
-            configuration = configuration {
-              inherit (module.config.accessible) workflows actions;
-              inherit (utils) qq stepsIf;
-              inherit (lib.values) null_;
-              config = module.config.user.parameters;
-            };
+            configuration =
+              let
+                configuration' = configuration {
+                  # arguments available to a user;
+                  inherit (module.config.accessible) workflows actions;
+                  inherit (utils) qq stepsIf;
+                  inherit (lib.values) null_;
+                  values = module.config.values or { };
+                };
+              in
+              configuration';
 
             inherit utils common pkgs lib;
           }

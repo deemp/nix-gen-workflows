@@ -6,14 +6,14 @@
 , qq
 , null_
 , stepsIf
-, config
+, values
 , ...
 }:
 {
-  parameters = {
+  valuesSchema = {
     foo = lib.mkOption {
       type = lib.types.int;
-      default = 3;
+      default = 4;
     };
   };
 
@@ -53,7 +53,7 @@
               alias = "cache";
             }
             (
-              stepsIf (config.foo == 3) [
+              stepsIf (values.foo == 3) [
                 {
                   uses = "something";
                   alias = "something";
@@ -61,7 +61,7 @@
               ]
             )
             (
-              stepsIf (config.foo == 4) [
+              stepsIf (values.foo == 4) [
                 {
                   uses = "something";
                   alias = "something";
