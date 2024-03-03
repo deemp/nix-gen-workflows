@@ -4,7 +4,7 @@
 , configuration
 , options
 , ...
-}@args:
+}:
 {
   options = {
     valuesSchema = lib.mkOption {
@@ -16,7 +16,7 @@
       type = lib.types.submodule { options = options.valuesSchema.default; };
       default =
         lib.recursiveUpdate
-          (lib.mapAttrs (name: value: value.default or null) (options.valuesSchema.default or { }))
+          (lib.mapAttrs (_: value: value.default or null) (options.valuesSchema.default or { }))
           (configuration.values or { });
     };
 

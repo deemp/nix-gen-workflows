@@ -14,7 +14,7 @@
     write =
       let
         workflowWriters = lib.pipe configurationModule.config.workflows [
-          (lib.filterAttrs (name: value: value.path != null))
+          (lib.filterAttrs (_: value: value.path != null))
           (lib.mapAttrs (name: value:
             let
               name' = (lib.strings.escapeNixIdentifier name);

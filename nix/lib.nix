@@ -17,7 +17,7 @@ let
       then
         lib.pipe val [
           (lib.mapAttrs' f)
-          (lib.mapAttrs (name: value: mapAttrsRecursive' f value))
+          (lib.mapAttrs (_: value: mapAttrsRecursive' f value))
         ]
       else if builtins.isList val
       then map (mapAttrsRecursive' f) val

@@ -92,7 +92,7 @@ let
   # Replace functions by the string <function>
   substFunction = x:
     if builtins.isAttrs x then
-      lib.mapAttrs (name: substFunction) x
+      lib.mapAttrs (_: substFunction) x
     else if builtins.isList x then
       map substFunction x
     else if builtins.isFunction x then
@@ -120,9 +120,6 @@ let
           (lib.optionAttrSetToDocList options)
       )
   );
-
-  inherit (import ../nix/commands/lib.nix { inherit pkgs options; })
-    mkLocSuffix nestedOptionsType flatOptionsType;
 
   # TODO: display values like TOML instead.
   toMarkdown = optionsDocs:

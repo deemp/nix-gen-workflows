@@ -24,7 +24,7 @@
                                 let
                                   mkAccessorOptions =
                                     lib.mapAttrs
-                                      (name: value:
+                                      (_: value:
                                         lib.mkOption
                                           (
                                             if lib.types.attrsEmpty.check value

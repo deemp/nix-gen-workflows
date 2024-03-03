@@ -19,10 +19,6 @@
             text = ''${lib.getExe pkgs.nix-unit} --flake .#tests.${system}'';
           };
           checks.nix-unit =
-            let
-              inputs' = lib.mapAttrs (name: input: "${input.outPath}") inputs;
-              inputsFile = builtins.toFile "inputs.json" (builtins.toJSON inputs');
-            in
             pkgs.stdenv.mkDerivation {
               name = "nix-unit-tests";
               phases = [ "unpackPhase" "buildPhase" ];
@@ -45,7 +41,7 @@
     )
     //
     {
-      overlays.default = final: prev: {
+      overlays.default = _: prev: {
         nix-gen-workflows = (import ./nix { pkgs = prev; }).eval;
       };
     }

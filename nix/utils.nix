@@ -15,14 +15,14 @@ rec
         let path_ = "${path}${if path == "" then "" else "."}${name}"; in
         if lib.isAttrs val
         then mkAccessors_ path_ val
-        else { __toString = self: "${path_}"; }
+        else { __toString = _: "${path_}"; }
       )
       attrs
     )
     //
     (lib.optionalAttrs
       (path != "")
-      { __toString = self: "${path}"; }
+      { __toString = _: "${path}"; }
     )
   ;
   convertUses = x:
