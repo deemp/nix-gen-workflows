@@ -1,7 +1,8 @@
 { lib }:
 let
+  nestedListOf = elemType: lib.types.listOf (lib.types.either elemType (nestedListOf elemType));
   nonEmptyListOf = elemType:
-    let list = lib.types.addCheck (lib.types.listOf elemType) (l: l != [ ]); in
+    let list = lib.types.addCheck (lib.types.coercedTo (nestedListOf elemType) lib.flatten (lib.types.listOf elemType)) (l: l != [ ]); in
     list // {
       description = "arbitrarily nested, non-empty when flattened ${lib.types.optionDescriptionPhrase (class: class == "noun") list}";
       # TODO remove after switching to newer nixpkgs
@@ -43,7 +44,7 @@ let
 in
 lib.recursiveUpdate lib {
   types = {
-    inherit 
+    inherit
       nonEmptyListOf
       attrsNestedOf
       attrsEmpty
