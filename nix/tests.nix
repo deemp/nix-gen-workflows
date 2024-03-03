@@ -1,7 +1,7 @@
 { example }:
 {
   normalized.testPass = {
-    expr = example.config.clean.normalized;
+    expr = example.internal.config.clean.normalized;
     expected = {
       workflow-1 = {
         jobs = {

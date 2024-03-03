@@ -1,6 +1,7 @@
 { lib
 , pkgs
 , config
+, configurationModule
 , ...
 }:
 {
@@ -12,7 +13,7 @@
   config = {
     write =
       let
-        workflowWriters = lib.pipe config.workflows [
+        workflowWriters = lib.pipe configurationModule.config.workflows [
           (lib.filterAttrs (name: value: value.path != null))
           (lib.mapAttrs (name: value:
             let

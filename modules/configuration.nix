@@ -66,25 +66,26 @@
     };
   };
 
-  config = {
-
-    inherit (configuration) actions;
-    workflows = lib.mapAttrs
-      (_: workflow:
-        workflow
-        //
-        {
-          jobs = lib.mapAttrs
-            (_: job:
-              job
-              //
-              {
-                steps = lib.flatten (job.steps or [ ]);
-              }
-            )
-            (workflow.jobs or { });
-        }
-      )
-      (configuration.workflows or { });
-  };
+  config =
+    configuration
+    //
+    {
+      workflows = lib.mapAttrs
+        (_: workflow:
+          workflow
+          //
+          {
+            jobs = lib.mapAttrs
+              (_: job:
+                job
+                //
+                {
+                  steps = lib.flatten (job.steps or [ ]);
+                }
+              )
+              (workflow.jobs or { });
+          }
+        )
+        (configuration.workflows or { });
+    };
 }

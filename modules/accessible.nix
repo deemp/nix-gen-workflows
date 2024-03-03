@@ -1,5 +1,5 @@
 { lib
-, config
+, configurationModule
 , common
 , utils
 , ...
@@ -95,7 +95,7 @@
                       default = { };
                     }
                   )
-                  config.workflows;
+                  configurationModule.config.workflows;
             };
             default = { };
           };
@@ -106,10 +106,10 @@
 
   config = {
     accessible = {
-      inherit (config) actions;
+      inherit (configurationModule.config) actions;
       workflows =
         utils.resolveWorkflows {
-          inherit config;
+          inherit (configurationModule) config;
           doMakeAccessors = true;
           stepsPipe = [
             (

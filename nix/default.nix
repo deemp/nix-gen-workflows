@@ -6,11 +6,32 @@ rec {
 
   common = import ./common.nix { inherit lib; };
 
-  eval = { configuration, extraSpecialArgs ? { } }:
+  eval = { configuration }:
     let
-      module = pkgs.lib.evalModules {
+      configurationModule = pkgs.lib.evalModules {
         modules = [
           ../modules/configuration.nix
+        ];
+        specialArgs =
+          {
+            configuration =
+              let
+                configuration' = configuration {
+                  # arguments available to a user
+                  inherit (internalModules.config.accessible) workflows actions;
+                  inherit (utils) qq stepsIf;
+                  inherit (lib.values) null_;
+                  values = configurationModule.config.values;
+                };
+              in
+              configuration';
+
+            inherit common lib;
+          };
+      };
+
+      internalModules = pkgs.lib.evalModules {
+        modules = [
           ../modules/accessible.nix
           ../modules/clean.nix
           ../modules/write.nix
@@ -25,28 +46,17 @@ rec {
             ];
           }
         ];
-        specialArgs =
-          {
-            configuration =
-              let
-                configuration' = configuration {
-                  # arguments available to a user;
-                  inherit (module.config.accessible) workflows actions;
-                  inherit (utils) qq stepsIf;
-                  inherit (lib.values) null_;
-                  values = module.config.values or { };
-                };
-              in
-              configuration';
 
-            inherit utils common pkgs lib;
-          }
-          //
-          extraSpecialArgs;
+        specialArgs = {
+          inherit configurationModule;
+
+          inherit utils common pkgs lib;
+        };
       };
     in
     {
-      inherit (module) config options;
+      configuration = { inherit (configurationModule) config options; };
+      internal = { inherit (internalModules) config options; };
     };
 
   example = eval { configuration = import ./example.nix { inherit (pkgs) lib; }; };

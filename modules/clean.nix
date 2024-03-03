@@ -1,6 +1,7 @@
 { lib
 , config
 , utils
+, configurationModule
 , ...
 }:
 {
@@ -27,7 +28,7 @@
       default =
         utils.cleanWorkflows (
           utils.resolveWorkflows {
-            inherit config;
+            inherit (configurationModule) config;
           }
         );
       normalized = lib.pipe default [
