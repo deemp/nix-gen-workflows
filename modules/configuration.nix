@@ -12,7 +12,7 @@
         (lib.types.attrsOf (lib.types.addCheck lib.types.anything (lib.isType "option")))
         //
         {
-          description = "attribute set of options";
+          description = "attribute set of (optionType)";
         };
       description = "Schema for user-supplied values.";
       default = { };
@@ -22,7 +22,7 @@
       type =
         lib.types.submodule' rec {
           modules = { options = config.valuesSchema; };
-          name = "attrset of values that match `valuesSchema` options";
+          name = "attribute set of values that match `valuesSchema` option types";
           description = name;
         };
       description = "User-supplied values.";
