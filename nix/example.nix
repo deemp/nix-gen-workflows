@@ -13,6 +13,7 @@
   valuesSchema = {
     foo = lib.mkOption {
       type = lib.types.int;
+      description = "`foo`";
       default = 4;
     };
   };
@@ -53,18 +54,18 @@
               alias = "cache";
             }
             (
-              stepsIf (values.foo == 3) [
+              stepsIf (values == { }) [
                 {
-                  uses = "something";
-                  alias = "something";
+                  uses = "something-3";
+                  alias = "something-3";
                 }
               ]
             )
             (
               stepsIf (values.foo == 4) [
                 {
-                  uses = "something";
-                  alias = "something";
+                  uses = "something-4";
+                  alias = "something-4";
                 }
               ]
             )

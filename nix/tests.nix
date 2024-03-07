@@ -21,7 +21,7 @@
                 uses = "actions/cache";
               }
               {
-                uses = "something";
+                uses = "something-4";
               }
             ];
           };
