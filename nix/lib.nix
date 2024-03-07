@@ -41,6 +41,17 @@ let
     lib.types.addCheck
       (lib.types.attrs // { description = "empty attribute set"; })
       (x: builtins.length (lib.attrNames x) == 0);
+
+  submodule' =
+    { modules
+    , name ? "submodule"
+    , description
+    }:
+    lib.types.submoduleWith {
+      shorthandOnlyDefinesConfig = true;
+      modules = lib.toList modules;
+      inherit name description;
+    };
 in
 lib.recursiveUpdate lib {
   types = {
@@ -48,6 +59,7 @@ lib.recursiveUpdate lib {
       nonEmptyListOf
       attrsNestedOf
       attrsEmpty
+      submodule'
       ;
   };
 
