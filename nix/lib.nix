@@ -1,11 +1,20 @@
 { lib }:
 let
-  nestedListOf = elemType: lib.types.listOf (lib.types.either elemType (nestedListOf elemType));
+  maxDepth = 100;
+
+  nestedListOf = elemType:
+    let elems = lib.genList (_: null) maxDepth; in
+    lib.foldl
+      (t: _: lib.types.listOf (lib.types.either elemType t) // {
+        description = "nested (max depth is ${toString maxDepth}) list of ${lib.types.optionDescriptionPhrase (class: class == "noun" || class == "composite") elemType}";
+      })
+      elemType
+      elems;
+
   nonEmptyListOf = elemType:
-    let list = lib.types.addCheck (lib.types.coercedTo (nestedListOf elemType) lib.flatten (lib.types.listOf elemType)) (l: l != [ ]); in
+    let list = lib.types.addCheck (lib.types.coercedTo (nestedListOf elemType) lib.flatten (lib.types.nonEmptyListOf elemType)) (l: l != [ ]); in
     list // {
-      description = "arbitrarily nested, non-empty when flattened ${lib.types.optionDescriptionPhrase (class: class == "noun") list}";
-      # TODO remove after switching to newer nixpkgs
+      description = "nested (max depth is ${toString maxDepth}) non-empty when flattened list of ${lib.types.optionDescriptionPhrase (class: class == "noun") elemType}";
       substSubModules = m: nonEmptyListOf (elemType.substSubModules m);
     };
 
@@ -24,15 +33,13 @@ let
       else val
     );
 
-  maxDepth = 100;
-
   attrsNestedOf = elemType:
     let elems = lib.genList (_: null) maxDepth; in
     lib.foldl
       (t: _: lib.types.attrsOf (lib.types.either elemType t) // {
-        description = "(nested (max depth is ${toString maxDepth}) attribute set of ${
+        description = "nested (max depth is ${toString maxDepth}) attribute set of ${
           lib.types.optionDescriptionPhrase (class: class == "noun" || class == "composite") elemType
-        })";
+        }";
       })
       elemType
       elems;
