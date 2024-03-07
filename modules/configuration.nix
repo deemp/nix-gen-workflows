@@ -8,16 +8,25 @@
 {
   options = {
     valuesSchema = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.addCheck lib.types.anything (lib.isType "option"));
-      default = configuration.valuesSchema or { };
+      type =
+        (lib.types.attrsOf (lib.types.addCheck lib.types.anything (lib.isType "option")))
+        //
+        {
+          description = "attribute set of options";
+        };
+      description = "Schema for user-supplied values.";
+      default = { };
     };
 
     values = lib.mkOption {
-      type = lib.types.submodule { options = options.valuesSchema.default; };
-      default =
-        lib.recursiveUpdate
-          (lib.mapAttrs (_: value: value.default or null) (options.valuesSchema.default or { }))
-          (configuration.values or { });
+      type =
+        lib.types.submodule' rec {
+          modules = { options = config.valuesSchema; };
+          name = "attrset of values that match `valuesSchema` options";
+          description = name;
+        };
+      description = "User-supplied values.";
+      default = { };
     };
 
     inherit (common.options) actions;
