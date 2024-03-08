@@ -17,7 +17,14 @@ rec
       substSubModules = m: null_Or (elemType.substSubModules m);
     };
 
-    null_OrNullOrStr = null_Or (lib.types.nullOr lib.types.str);
+    null_OrNullOrStr = null_Or (
+      lib.types.nullOr (
+        lib.types.coercedTo
+          (lib.types.addCheck lib.types.attrs (x: x?__toString))
+          builtins.toString
+          lib.types.str
+      )
+    );
   };
 
   options = rec {
