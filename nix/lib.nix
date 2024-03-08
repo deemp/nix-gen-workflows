@@ -47,7 +47,7 @@ let
   attrsEmpty =
     lib.types.addCheck
       (lib.types.attrs // { description = "empty attribute set"; })
-      (x: builtins.length (lib.attrNames x) == 0);
+      (x: x == { });
 
   submodule' =
     { modules
