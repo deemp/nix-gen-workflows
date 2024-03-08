@@ -25,30 +25,38 @@
                                   mkAccessorOptions = path:
                                     lib.mapAttrs
                                       (name: value:
-                                        lib.mkOption
-                                          (
-                                            if lib.types.attrsEmpty.check value
-                                            then
-                                              {
-                                                type = lib.types.coercedTo lib.types.attrs (x: builtins.toString (x // { __toString = self: lib.concatStringsSep "." (path ++ [ name ]); })) lib.types.str;
-                                                default = lib.concatStringsSep "." (path ++ [ name ]);
-                                              }
-                                            else
-                                              {
-                                                type = lib.types.submodule {
-                                                  options =
-                                                    (mkAccessorOptions (path ++ [ name ]) value)
-                                                    //
-                                                    {
-                                                      __toString = lib.mkOption {
-                                                        type = lib.types.functionTo lib.types.str;
-                                                        default = _: lib.concatStringsSep "." path;
-                                                      };
-                                                    };
+                                        let
+                                          valueIsEmptyAttrs = lib.types.attrsEmpty.check value;
+                                          path_ = path ++ [ name ];
+                                          pathStr = lib.concatStringsSep "." path_;
+                                        in
+                                        lib.mkOption {
+                                          type = lib.types.submodule' {
+                                            name = "accessor";
+                                            description = (
+                                              if valueIsEmptyAttrs
+                                              then "attribute set of (submodule)"
+                                              else "empty attribute set"
+                                            ) + " automatically convertible to string";
+                                            modules = {
+                                              options =
+                                                (
+                                                  lib.optionalAttrs
+                                                    (!valueIsEmptyAttrs)
+                                                    (mkAccessorOptions path_ value)
+                                                )
+                                                //
+                                                {
+                                                  __toString = lib.mkOption {
+                                                    type = lib.types.functionTo lib.types.str;
+                                                    default = _: pathStr;
+                                                    internal = true;
+                                                  };
                                                 };
-                                                default = { };
-                                              }
-                                          )
+                                            };
+                                          };
+                                          default = pathStr;
+                                        }
                                       );
                                 in
                                 lib.types.submodule {
@@ -146,3 +154,5 @@
     };
   };
 }
+
+
