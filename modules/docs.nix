@@ -5,12 +5,10 @@
 , pkgs
 , options
 , config
-, modulesPath
+, configurationModule
 , ...
 }:
 let
-  cfg = config.modules-docs;
-
   # Generate some meta data for a list of packages. This is what
   # `relatedPackages` option of `mkOption` lib/options.nix influences.
   #
@@ -60,7 +58,7 @@ let
     let
       rootsWithPrefixes = map
         (p: p // { prefix = "${toString p.path}/"; })
-        cfg.roots;
+        config.modules-docs.roots;
     in
     decl:
     let
@@ -111,77 +109,98 @@ let
     // applyOnAttr "type" substFunction
     // applyOnAttr "relatedPackages" mkRelatedPackages;
 
-  optionsDocs = map cleanUpOption (
-    builtins.sort
-      moduleDocCompare
-      (
-        builtins.filter
-          (opt: opt.visible && !opt.internal)
-          (lib.optionAttrSetToDocList options)
-      )
-  );
+  optionsDocs = options':
+    # lib.traceSeqN 5 options'
+    (map cleanUpOption (
+      builtins.sort
+        moduleDocCompare
+        (
+          builtins.filter
+            (opt: opt.visible && !opt.internal)
+            (lib.optionAttrSetToDocList options')
+        )
+    ));
 
-  # TODO: display values like TOML instead.
-  toMarkdown = optionsDocs:
+  optToMd = opt:
+    let heading = lib.showOption opt.loc; in
+    ''
+      #### `${heading}`
+    ''
+    + (lib.optionalString opt.internal "\n**internal**\n")
+    + (builtins.toString opt.description + "\n")
+    + ''
+    
+      **Type**:
+        
+      ```text
+      ${opt.type}
+      ```
+      
+    ''
+    + (lib.optionalString (opt?default && opt.default != null) ''
+    
+      **Default value**:
+        
+      ```nix
+      ${lib.removeSuffix "\n" opt.default.text}
+      ```
+      
+    '')
+    + (lib.optionalString (opt?example) ''
+    
+      **Example value**:
+        
+      ```nix
+      ${lib.removeSuffix "\n" opt.example.text}
+      ```
+      
+    '')
+    + ''
+    
+      **Declared in**:
+      
+    ''
+    + (
+      lib.concatStringsSep
+        "\n"
+        (map
+          (decl: "- [${decl.path}](${decl.url})")
+          opt.declarations
+        )
+    )
+  ;
+
+
+  markdownDocs =
     let
-      optionsDocsPartitionedIsMain = lib.partition (opt: lib.head opt.loc != "_module") optionsDocs;
-      nixMain = optionsDocsPartitionedIsMain.right;
-      nixExtra = optionsDocsPartitionedIsMain.wrong;
       concatOpts = opts: (lib.concatStringsSep "\n\n" (map optToMd opts));
+      mkDocs = x: concatOpts (optionsDocs x);
 
-      # TODO: handle opt.relatedPackages. What is it for?
-      optToMd = opt:
-        (let heading = lib.showOption opt.loc; in
-        ''
-          ## `${heading}`
-        ''
-        + (lib.optionalString opt.internal "\n**internal**\n")
-        + (builtins.toString opt.description)
-        + ''
+      valuesSchemaDocs = mkDocs configurationModule.options.valuesSchema;
+      valuesDocs = mkDocs configurationModule.options.values;
+      actionsDocs = mkDocs configurationModule.options.actions;
+      workflowsDocs = mkDocs configurationModule.options.workflows;
 
-          **Type**:
-          
-          ```console
-          ${opt.type}
-          ```
-        ''
-        + (lib.optionalString (opt?default && opt.default != null) ''
-          
-          **Default value**:
-          
-          ```nix
-          ${lib.removeSuffix "\n" opt.default.text}
-          ```
-        '')
-        + (lib.optionalString (opt ? example) ''
-
-          **Example value**:
-          
-          ```nix
-          ${lib.removeSuffix "\n" opt.example.text}
-          ```
-        '')
-        + ''
-
-          **Declared in**:
-
-        ''
-        + (
-          lib.concatStringsSep
-            "\n"
-            (map
-              (decl: "- [${decl.path}](${decl.url})")
-              opt.declarations
-            )
-        ))
-      ;
+      workflowsAccessibleDocs = mkDocs (options.accessible.type.getSubOptions [ ]).workflows;
+      actionsAccessibleDocs = mkDocs (options.accessible.type.getSubOptions [ ]).actions;
 
       doc = [
-        "# Options\n"
-        (concatOpts nixMain)
+        "# Docs"
+        "## For users"
+        "### Default values"
+        valuesDocs
+        "## For developers"
+        "### Configuration options"
+        valuesSchemaDocs
+        valuesDocs
+        actionsDocs
+        workflowsDocs
+        "### Configuration arguments"
+        workflowsAccessibleDocs
+        actionsAccessibleDocs
       ];
     in
-    lib.concatStringsSep "\n" doc;
+    lib.concatStringsSep "\n\n" doc;
 in
 {
   options.modules-docs = {
@@ -205,15 +224,6 @@ in
       '';
     };
 
-    data = lib.mkOption {
-      visible = false;
-      type = lib.types.listOf lib.types.attrs;
-      description = ''
-        Contains a list of each module option, nicely split out for
-        consumption.
-      '';
-    };
-
     markdown = lib.mkOption {
       visible = false;
       type = lib.types.package;
@@ -224,7 +234,16 @@ in
   };
 
   config.modules-docs = {
-    data = optionsDocs;
-    markdown = pkgs.writeText "modules-docs.md" (toMarkdown optionsDocs);
+    markdown =
+      pkgs.stdenv.mkDerivation {
+        name = "markdown-docs.md";
+        nativeBuildInputs = [ pkgs.nodePackages.prettier ];
+        phases = [ "buildPhase" ];
+        buildPhase = ''
+          cat ${pkgs.writeText "docs" markdownDocs} \
+            | prettier --parser markdown \
+            > $out
+        '';
+      };
   };
 }
