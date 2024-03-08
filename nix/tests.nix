@@ -17,12 +17,8 @@
                   cadabra = "matrix.cadabra";
                 };
               }
-              {
-                uses = "actions/cache";
-              }
-              {
-                uses = "something-4";
-              }
+              { uses = "actions/cache"; }
+              { uses = "something-4"; }
             ];
           };
           b = {
@@ -35,15 +31,9 @@
                   repository = "abra";
                 };
               }
-              {
-                uses = "actions/cache";
-              }
-              {
-                uses = "actions/cache";
-              }
-              {
-                uses = "actions/cache";
-              }
+              { uses = "actions/cache"; }
+              { uses = "actions/cache"; }
+              { uses = "actions/cache"; }
             ];
           };
         };
@@ -52,11 +42,7 @@
         jobs = {
           a = {
             name = "\${{ Hello }}\${{ Hello }}";
-            steps = [
-              {
-                id = "1";
-              }
-            ];
+            steps = [ { id = "1"; } ];
           };
         };
       };

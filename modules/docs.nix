@@ -1,12 +1,13 @@
 # MIT - Copyright (c) 2017-2019 Robert Helgesson and Home Manager contributors.
 #
 # This is an adapted version of the original https://sr.ht/~rycee/nmd/
-{ lib
-, pkgs
-, options
-, config
-, configurationModule
-, ...
+{
+  lib,
+  pkgs,
+  options,
+  config,
+  configurationModule,
+  ...
 }:
 let
   # Generate some meta data for a list of packages. This is what
@@ -19,7 +20,8 @@ let
   #   (either of `name`, `path` is required, the rest are optional).
   mkRelatedPackages =
     let
-      unpack = p:
+      unpack =
+        p:
         if builtins.isString p then
           { name = p; }
         else if builtins.isList p then
@@ -27,26 +29,27 @@ let
         else
           p;
 
-      repack = args:
+      repack =
+        args:
         let
           name = args.name or (lib.concatStringsSep "." args.path);
           path = args.path or [ args.name ];
-          pkg = args.package or (
-            let
-              bail = throw "Invalid package attribute path '${toString path}'";
-            in
-            lib.attrByPath path bail pkgs
-          );
+          pkg =
+            args.package or (
+              let
+                bail = throw "Invalid package attribute path '${toString path}'";
+              in
+              lib.attrByPath path bail pkgs
+            );
         in
         {
           attrName = name;
           packageName = pkg.meta.name;
           available = pkg.meta.available;
-        } // lib.optionalAttrs (pkg.meta ? description) {
-          inherit (pkg.meta) description;
-        } // lib.optionalAttrs (pkg.meta ? longDescription) {
-          inherit (pkg.meta) longDescription;
-        } // lib.optionalAttrs (args ? comment) { inherit (args) comment; };
+        }
+        // lib.optionalAttrs (pkg.meta ? description) { inherit (pkg.meta) description; }
+        // lib.optionalAttrs (pkg.meta ? longDescription) { inherit (pkg.meta) longDescription; }
+        // lib.optionalAttrs (args ? comment) { inherit (args) comment; };
     in
     map (p: repack (unpack p));
 
@@ -56,21 +59,19 @@ let
   # to the repo root, and URL points to an online view of the module.
   mkDeclaration =
     let
-      rootsWithPrefixes = map
-        (p: p // { prefix = "${toString p.path}/"; })
-        config.modules-docs.roots;
+      rootsWithPrefixes = map (p: p // { prefix = "${toString p.path}/"; }) config.modules-docs.roots;
     in
     decl:
     let
-      root = lib.findFirst
-        (x: lib.hasPrefix x.prefix decl)
-        null
-        rootsWithPrefixes;
+      root = lib.findFirst (x: lib.hasPrefix x.prefix decl) null rootsWithPrefixes;
     in
     if root == null then
-    # We need to strip references to /nix/store/* from the options or
-    # else the build will fail.
-      { path = lib.removePrefix "${builtins.storeDir}/" decl; url = ""; }
+      # We need to strip references to /nix/store/* from the options or
+      # else the build will fail.
+      {
+        path = lib.removePrefix "${builtins.storeDir}/" decl;
+        url = "";
+      }
     else
       rec {
         path = lib.removePrefix root.prefix decl;
@@ -78,7 +79,8 @@ let
       };
 
   # Sort modules and put "enable" and "package" declarations first.
-  moduleDocCompare = a: b:
+  moduleDocCompare =
+    a: b:
     let
       isEnable = lib.hasPrefix "enable";
       isPackage = lib.hasPrefix "package";
@@ -88,7 +90,8 @@ let
     lib.compareLists moduleCmp (map toString a.loc) (map toString b.loc) < 0;
 
   # Replace functions by the string <function>
-  substFunction = x:
+  substFunction =
+    x:
     if builtins.isAttrs x then
       lib.mapAttrs (_: substFunction) x
     else if builtins.isList x then
@@ -98,7 +101,8 @@ let
     else
       x;
 
-  cleanUpOption = opt:
+  cleanUpOption =
+    opt:
     let
       applyOnAttr = n: f: lib.optionalAttrs (lib.hasAttr n opt) { ${n} = f opt.${n}; };
     in
@@ -109,67 +113,58 @@ let
     // applyOnAttr "type" substFunction
     // applyOnAttr "relatedPackages" mkRelatedPackages;
 
-  optionsDocs = options':
+  optionsDocs =
+    options':
     # lib.traceSeqN 5 options'
     (map cleanUpOption (
-      builtins.sort
-        moduleDocCompare
-        (
-          builtins.filter
-            (opt: opt.visible && !opt.internal)
-            (lib.optionAttrSetToDocList options')
-        )
+      builtins.sort moduleDocCompare (
+        builtins.filter (opt: opt.visible && !opt.internal) (lib.optionAttrSetToDocList options')
+      )
     ));
 
-  optToMd = opt:
-    let heading = lib.showOption opt.loc; in
+  optToMd =
+    opt:
+    let
+      heading = lib.showOption opt.loc;
+    in
     ''
       #### `${heading}`
     ''
     + (lib.optionalString opt.internal "\n**internal**\n")
     + (builtins.toString opt.description + "\n")
     + ''
-    
+
       **Type**:
         
       ```text
       ${opt.type}
       ```
-      
+
     ''
-    + (lib.optionalString (opt?default && opt.default != null) ''
-    
+    + (lib.optionalString (opt ? default && opt.default != null) ''
+
       **Default value**:
         
       ```nix
       ${lib.removeSuffix "\n" opt.default.text}
       ```
-      
+
     '')
-    + (lib.optionalString (opt?example) ''
-    
+    + (lib.optionalString (opt ? example) ''
+
       **Example value**:
         
       ```nix
       ${lib.removeSuffix "\n" opt.example.text}
       ```
-      
+
     '')
     + ''
-    
-      **Declared in**:
-      
-    ''
-    + (
-      lib.concatStringsSep
-        "\n"
-        (map
-          (decl: "- [${decl.path}](${decl.url})")
-          opt.declarations
-        )
-    )
-  ;
 
+      **Declared in**:
+
+    ''
+    + (lib.concatStringsSep "\n" (map (decl: "- [${decl.path}](${decl.url})") opt.declarations));
 
   markdownDocs =
     let
@@ -206,18 +201,19 @@ in
   options.modules-docs = {
     roots = lib.mkOption {
       internal = true;
-      type = lib.types.listOf (lib.types.submodule {
-        options =
-          let str =
-            lib.mkOption {
-              type = lib.types.str;
-            }; in
-          {
-            url = str;
-            path = str;
-            branch = str;
-          };
-      });
+      type = lib.types.listOf (
+        lib.types.submodule {
+          options =
+            let
+              str = lib.mkOption { type = lib.types.str; };
+            in
+            {
+              url = str;
+              path = str;
+              branch = str;
+            };
+        }
+      );
       description = ''
         Add to this list for each new module root. The attr should have path,
         url and branch attributes (TODO: convert to submodule).
@@ -234,16 +230,15 @@ in
   };
 
   config.modules-docs = {
-    markdown =
-      pkgs.stdenv.mkDerivation {
-        name = "markdown-docs.md";
-        nativeBuildInputs = [ pkgs.nodePackages.prettier ];
-        phases = [ "buildPhase" ];
-        buildPhase = ''
-          cat ${pkgs.writeText "docs" markdownDocs} \
-            | prettier --parser markdown \
-            > $out
-        '';
-      };
+    markdown = pkgs.stdenv.mkDerivation {
+      name = "markdown-docs.md";
+      nativeBuildInputs = [ pkgs.nodePackages.prettier ];
+      phases = [ "buildPhase" ];
+      buildPhase = ''
+        cat ${pkgs.writeText "docs" markdownDocs} \
+          | prettier --parser markdown \
+          > $out
+      '';
+    };
   };
 }

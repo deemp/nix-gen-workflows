@@ -6,28 +6,26 @@ rec {
 
   common = import ./common.nix { inherit lib; };
 
-  eval = { configuration }:
+  eval =
+    { configuration }:
     let
       configurationModule = pkgs.lib.evalModules {
-        modules = [
-          ../modules/configuration.nix
-        ];
-        specialArgs =
-          {
-            configuration =
-              let
-                configuration' = configuration {
-                  # arguments available to a user
-                  inherit (internalModules.config.accessible) workflows actions;
-                  inherit (utils) qq stepsIf;
-                  inherit (lib.values) null_;
-                  values = configurationModule.config.values;
-                };
-              in
-              configuration';
+        modules = [ ../modules/configuration.nix ];
+        specialArgs = {
+          configuration =
+            let
+              configuration' = configuration {
+                # arguments available to a user
+                inherit (internalModules.config.accessible) workflows actions;
+                inherit (utils) qq stepsIf;
+                inherit (lib.values) null_;
+                values = configurationModule.config.values;
+              };
+            in
+            configuration';
 
-            inherit common lib;
-          };
+          inherit common lib;
+        };
       };
 
       internalModules = pkgs.lib.evalModules {
@@ -50,13 +48,22 @@ rec {
         specialArgs = {
           inherit configurationModule;
 
-          inherit utils common pkgs lib;
+          inherit
+            utils
+            common
+            pkgs
+            lib
+            ;
         };
       };
     in
     {
-      configuration = { inherit (configurationModule) config options; };
-      internal = { inherit (internalModules) config options; };
+      configuration = {
+        inherit (configurationModule) config options;
+      };
+      internal = {
+        inherit (internalModules) config options;
+      };
     };
 
   example = eval { configuration = import ./example.nix { inherit (pkgs) lib; }; };

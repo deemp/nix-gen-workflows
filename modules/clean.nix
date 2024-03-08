@@ -1,8 +1,9 @@
-{ lib
-, config
-, utils
-, configurationModule
-, ...
+{
+  lib,
+  config,
+  utils,
+  configurationModule,
+  ...
 }:
 {
   options = {
@@ -25,20 +26,16 @@
 
   config = {
     clean = rec {
-      default =
-        utils.cleanWorkflows (
-          utils.resolveWorkflows {
-            inherit (configurationModule) config;
-          }
-        );
+      default = utils.cleanWorkflows (utils.resolveWorkflows { inherit (configurationModule) config; });
       normalized = lib.pipe default [
         (
           # rename: "with_" -> "with"
-          lib.mapAttrsRecursive'
-            (name: value: {
+          lib.mapAttrsRecursive' (
+            name: value: {
               name = if name == "with_" then "with" else name;
               inherit value;
-            })
+            }
+          )
         )
       ];
     };

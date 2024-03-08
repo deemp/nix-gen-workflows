@@ -1,13 +1,12 @@
-{ lib
-, ...
-}:
-{ workflows
-, actions
-, qq
-, null_
-, stepsIf
-, values
-, ...
+{ lib, ... }:
+{
+  workflows,
+  actions,
+  qq,
+  null_,
+  stepsIf,
+  values,
+  ...
 }:
 {
   valuesSchema = {
@@ -53,22 +52,18 @@
               uses = "actions/cache";
               alias = "cache";
             }
-            (
-              stepsIf (values == { }) [
-                {
-                  uses = "something-3";
-                  alias = "something-3";
-                }
-              ]
-            )
-            (
-              stepsIf (values.foo == 4) [
-                {
-                  uses = "something-4";
-                  alias = "something-4";
-                }
-              ]
-            )
+            (stepsIf (values == { }) [
+              {
+                uses = "something-3";
+                alias = "something-3";
+              }
+            ])
+            (stepsIf (values.foo == 4) [
+              {
+                uses = "something-4";
+                alias = "something-4";
+              }
+            ])
           ];
         };
 
@@ -85,17 +80,10 @@
               };
             }
             [
-              {
-                uses = workflows.workflow-1.jobs.a.steps."2".uses;
-              }
-              {
-                uses = workflows.workflow-1.jobs.a.steps.cache.uses;
-              }
+              { uses = workflows.workflow-1.jobs.a.steps."2".uses; }
+              { uses = workflows.workflow-1.jobs.a.steps.cache.uses; }
             ]
-          ]
-          ++
-          (workflows.workflow-1.jobs.a.steps [ "cache" ])
-          ;
+          ] ++ (workflows.workflow-1.jobs.a.steps [ "cache" ]);
         };
       };
     };
@@ -106,11 +94,7 @@
       jobs = {
         a = {
           name = workflows.workflow-1.jobs.b.name;
-          steps = [
-            {
-              id = "1";
-            }
-          ];
+          steps = [ { id = "1"; } ];
         };
       };
     };

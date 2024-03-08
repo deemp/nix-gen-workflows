@@ -1,21 +1,21 @@
-{ lib
-, pkgs
-, config
-, configurationModule
-, ...
+{
+  lib,
+  pkgs,
+  config,
+  configurationModule,
+  ...
 }:
 {
   options = {
-    write = lib.mkOption {
-      type = lib.types.attrsOf lib.types.package;
-    };
+    write = lib.mkOption { type = lib.types.attrsOf lib.types.package; };
   };
   config = {
     write =
       let
         workflowWriters = lib.pipe configurationModule.config.workflows [
           (lib.filterAttrs (_: value: value.path != null))
-          (lib.mapAttrs (name: value:
+          (lib.mapAttrs (
+            name: value:
             let
               name' = (lib.strings.escapeNixIdentifier name);
               generate = (pkgs.formats.yaml { }).generate name' config.clean.normalized.${name};
@@ -25,18 +25,17 @@
               mkdir -p "$(dirname ${path})"
               cp ${generate} "${path}"
               chmod +w "${path}"
-            ''))
+            ''
+          ))
         ];
       in
       workflowWriters
-      //
-      {
+      // {
         all = lib.pipe workflowWriters [
           (lib.mapAttrsToList (_: value: lib.getExe value))
           (lib.concatStringsSep "\n")
           (pkgs.writeShellScriptBin "all")
-        ]
-        ;
+        ];
       };
   };
 }
