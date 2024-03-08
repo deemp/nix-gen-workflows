@@ -36,6 +36,8 @@
                 touch $out
               '';
             };
+
+          formatter = pkgs.nixfmt-rfc-style;
         }
       )
     )
