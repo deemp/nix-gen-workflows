@@ -12,9 +12,12 @@
         (lib.types.attrsOf (lib.types.addCheck lib.types.anything (lib.isType "option")))
         //
         {
-          description = "attribute set of (optionType)";
+          description = "attribute set of (option)";
         };
-      description = "Schema for user-supplied values.";
+      description = ''
+        Schema for values used to parameterize workflows. 
+        These values are available via arguments of a configuration.
+      '';
       default = { };
     };
 
@@ -22,10 +25,13 @@
       type =
         lib.types.submodule' rec {
           modules = { options = config.valuesSchema; };
-          name = "attribute set of values that match `valuesSchema` option types";
+          name = "attribute set of (value)";
           description = name;
         };
-      description = "User-supplied values.";
+      description = ''
+        Values used to parameterize workflows.
+        These values must match the [valuesSchema](#valuesschema).
+      '';
       default = { };
     };
 
