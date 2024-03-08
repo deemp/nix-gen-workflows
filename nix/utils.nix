@@ -5,26 +5,6 @@ rec
 
   stepsIf = cond: steps: if cond then steps else [ ];
 
-  # make accessors from an attrset so that a.b.c represents a string "a.b.c"
-  mkAccessors = mkAccessors_ "";
-
-  # make accessors with an initial path
-  mkAccessors_ = path: attrs@{ ... }:
-    (lib.mapAttrs
-      (name: val:
-        let path_ = "${path}${if path == "" then "" else "."}${name}"; in
-        if lib.isAttrs val
-        then mkAccessors_ path_ val
-        else { __toString = _: "${path_}"; }
-      )
-      attrs
-    )
-    //
-    (lib.optionalAttrs
-      (path != "")
-      { __toString = _: "${path}"; }
-    )
-  ;
   convertUses = x:
     x
     //
@@ -64,10 +44,6 @@ rec
           //
           (
             let actions = lib.recursiveUpdate config.actions (workflow.actions or { }); in
-            (lib.optionalAttrs doMakeAccessors {
-              accessors = mkAccessors (workflow.accessors or { });
-            })
-            //
             {
               inherit actions;
               jobs =

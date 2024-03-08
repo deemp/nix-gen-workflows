@@ -22,27 +22,27 @@
                             accessors = lib.mkOption {
                               type =
                                 let
-                                  mkAccessorOptions =
+                                  mkAccessorOptions = path:
                                     lib.mapAttrs
-                                      (_: value:
+                                      (name: value:
                                         lib.mkOption
                                           (
                                             if lib.types.attrsEmpty.check value
                                             then
                                               {
-                                                type = lib.types.coercedTo lib.types.attrs builtins.toString lib.types.str;
-                                                default = "";
+                                                type = lib.types.coercedTo lib.types.attrs (x: builtins.toString (x // { __toString = self: lib.concatStringsSep "." (path ++ [ name ]); })) lib.types.str;
+                                                default = lib.concatStringsSep "." (path ++ [ name ]);
                                               }
                                             else
                                               {
                                                 type = lib.types.submodule {
                                                   options =
-                                                    (mkAccessorOptions value)
+                                                    (mkAccessorOptions (path ++ [ name ]) value)
                                                     //
                                                     {
                                                       __toString = lib.mkOption {
                                                         type = lib.types.functionTo lib.types.str;
-                                                        default = _: "";
+                                                        default = _: lib.concatStringsSep "." path;
                                                       };
                                                     };
                                                 };
@@ -52,7 +52,7 @@
                                       );
                                 in
                                 lib.types.submodule {
-                                  options = mkAccessorOptions (workflow.accessors or { });
+                                  options = mkAccessorOptions [ ] (workflow.accessors or { });
                                 };
                               default = { };
                             };
