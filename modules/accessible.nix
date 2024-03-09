@@ -53,7 +53,7 @@
                           lib.types.submodule { options = mkAccessorOptions [ ] (workflow.accessors or { }); };
                         default = { };
                       };
-                      inherit (common.options) path actions;
+                      inherit (common.options) path actions on;
                       jobs = lib.mkOption {
                         type = lib.types.submodule {
                           options = lib.mapAttrs (

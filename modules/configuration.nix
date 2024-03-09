@@ -40,7 +40,7 @@
       type = lib.types.attrsOf (
         lib.types.submodule {
           options = {
-            inherit (common.options) path actions;
+            inherit (common.options) path actions on;
             accessors = lib.mkOption {
               type = lib.types.attrsNestedOf lib.types.attrsEmpty;
               default = { };

@@ -4,6 +4,7 @@
     expr = example.internal.config.clean.normalized;
     expected = {
       workflow-1 = {
+        on.workflow_dispatch = { };
         jobs = {
           a = {
             name = "Hello";
@@ -39,6 +40,7 @@
         };
       };
       workflow-2 = {
+        on.workflow_dispatch = { };
         jobs = {
           a = {
             name = "\${{ Hello }}\${{ Hello }}";

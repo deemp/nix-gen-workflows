@@ -29,6 +29,7 @@
 
   workflows = {
     workflow-1 = with workflows.workflow-1.accessors; {
+      on.workflow_dispatch = { };
       path = ".github/workflows/action.yaml";
       actions = { };
       accessors = {
@@ -89,6 +90,7 @@
     };
 
     workflow-2 = {
+      on.workflow_dispatch = { };
       path = ".github/workflows/action-2.yaml";
 
       jobs = {

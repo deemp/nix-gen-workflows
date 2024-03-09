@@ -117,18 +117,21 @@ let
       modules = lib.toList modules;
       inherit name description;
     };
+
+  strOneOf = types: lib.types.addCheck lib.types.str (x: builtins.elem x types);
 in
 lib.recursiveUpdate lib {
   types = {
     inherit
-      nonEmptyListOf
-      attrsNestedOf
       attrsEmpty
-      submodule'
+      attrsNestedOf
+      nonEmptyListOf
       null_Or
       nullishOr
-      stringish
       nullishOrStringish
+      stringish
+      strOneOf
+      submodule'
       ;
   };
 
