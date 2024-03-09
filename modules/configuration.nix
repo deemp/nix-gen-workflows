@@ -56,7 +56,7 @@
                           options = common.options.step // {
                             uses = lib.mkOption {
                               type = lib.types.oneOf [
-                                common.types.null_OrNullOrStr
+                                lib.types.nullishOrStringish
                                 (lib.types.addCheck (lib.types.attrsOf common.options.action) (
                                   x: builtins.length (builtins.attrNames x) == 1
                                 ))
